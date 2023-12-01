@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa's Gift Delivery</title>
+    <style>
+        canvas {
+            border: 2px solid #000;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Santa's sleigh
+        const sleigh = {
+            x: canvas.width / 2,
+            y: canvas.height - 50,
+            width: 50,
+            height: 50,
+            speed: 5
+        };
+
+        // Presents
+        const presents = [];
+
+        function drawSleigh() {
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(sleigh.x, sleigh.y, sleigh.width, sleigh.height);
+        }
+
+        function drawPresents() {
+            ctx.fillStyle = '#00ff00';
+            for (const present of presents) {
+                ctx.fillRect(present.x, present.y, present.width, present.height);
+            }
+        }
+
+        function update() {
+            // Move sleigh
+            if (sleigh.x > 0 && sleigh.x < canvas.width - sleigh.width) {
+                if (keys.left) sleigh.x -= sleigh.speed;
+                if (keys.right) sleigh.x += sleigh.speed;
+            }
+
+            // Move presents
+            for (const present of presents) {
+                present.y += 2; // Adjust the speed of the presents falling
+                // Check for collision with sleigh
+                if (
+                    present.x < sleigh.x + sleigh.width &&
+                    present.x + present.width > sleigh.x &&
+                    present.y < sleigh.y + sleigh.height &&
+                    present.y + present.height > sleigh.y
+                ) {
+                    // Handle collision (e.g., increase score)
+                    console.log('Gift delivered!');
+                }
+            }
+
+            // Remove off-screen presents
+            presents = presents.filter(present => present.y < canvas.height);
+
+            // Generate new presents
+            if (Math.random() < 0.02) {
+                const newPresent = {
+                    x: Math.random() * (canvas.width - 30),
+                    y: 0,
+                    width: 30,
+                    height: 30
+                };
+                presents.push(newPresent);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSleigh();
+            drawPresents();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Handle keyboard input
+        const keys = {
+            left: false,
+            right: false
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') keys.left = true;
+            if (e.key === 'ArrowRight') keys.right = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft') keys.left = false;
+            if (e.key === 'ArrowRight') keys.right = false;
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
